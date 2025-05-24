@@ -58,7 +58,6 @@
   ansible.builtin.template:
     src: etc/rsyslog.conf.j2
     dest: /etc/rsyslog.conf
-    validate: 'rsyslogd -N1 -f %s'
     owner: root
     group: root
     mode: 0440
@@ -68,6 +67,17 @@
     - rsyslog
     - rsyslog-configuration
     - rsyslog-configuration-rsyslog
+
+- name: manually validate rsyslog config
+  ansible.builtin.command: rsyslogd -N1 -f /etc/rsyslog.conf
+  become: true
+  register: validate_result
+  changed_when: false
+  failed_when: validate_result.rc != 0
+  tags:
+    - configuration
+    - rsyslog
+    - rsyslog-validation
 
 - name: start and enable service
   ansible.builtin.service:
